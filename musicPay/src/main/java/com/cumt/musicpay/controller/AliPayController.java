@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.util.Map;
+import java.util.Objects;
 
 import static com.cumt.musicpay.util.OrderStatus.ORDERCANCEL;
 
@@ -83,7 +84,7 @@ public class AliPayController {
                 return s;
             }
             String app_id = param.get("app_id");
-            if(!environment.getProperty("alipay.add-id").equals(app_id)){
+            if(environment.containsProperty("alipay.add-id") && !Objects.equals(environment.getProperty("alipay.add-id"), app_id)){
                 System.out.println("商家id验证失败");
                 return s;
             }
