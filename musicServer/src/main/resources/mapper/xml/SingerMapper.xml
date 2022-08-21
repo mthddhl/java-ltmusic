@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cumt.musicserver.dao.SingerDao">
+    <select id="singerGetCountByLetter" resultType="Integer">
+        SELECT count(*)
+        FROM singer p, app_tcosler c
+        where CONV( HEX( LEFT( CONVERT(name
+        USING gbk ) , 1 ) ) , 16, 10 )
+        BETWEEN c.cBegin
+        AND c.cEnd
+            <if test="letter!=null and letter!='全部'">
+                AND (fPY = #{letter}
+                or (left(name,1)=fpy and fpy=#{letter}))
+            </if>
+            <if test="(sex!=null and sex!=3)">
+                and p.sex=#{sex}
+            </if>
+            <if test="location!=null and location=='内地'">
+                and p.location='中国'
+            </if>
+            <if test="location!=null and location=='港澳台'">
+                and p.location in ('中国香港','中国台湾','中国澳门')
+            </if>
+            <if test="location!=null and location=='国外'">
+                and p.location not in ('中国','中国香港','中国台湾','中国澳门')
+            </if>
+    </select>
+    <select id="singerGetByLetter" resultType="com.cumt.musicserver.domain.Singer">
+        SELECT p. *
+        FROM singer p, app_tcosler c
+        where CONV( HEX( LEFT( CONVERT(name
+        USING gbk ) , 1 ) ) , 16, 10 )
+        BETWEEN c.cBegin
+        AND c.cEnd
+            <if test="letter!=null and letter!='全部'">
+                AND (fPY = #{letter}
+                or (left(name,1)=fpy and fpy=#{letter}))
+            </if>
+            <if test="(sex!=null and sex!=3)">
+                and p.sex=#{sex}
+            </if>
+            <if test="location!=null and location=='内地'">
+                and p.location='中国'
+            </if>
+            <if test="location!=null and location=='港澳台'">
+                and p.location in ('中国香港','中国台湾','中国澳门')
+            </if>
+            <if test="location!=null and location=='国外'">
+                and p.location not in ('中国','中国香港','中国台湾','中国澳门')
+            </if>
+        ORDER BY CONVERT(name USING 'gbk')
+        limit #{currentPage},#{pageSize}
+    </select>
+</mapper>

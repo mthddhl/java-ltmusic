@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cumt.musicserver.dao.SongDao">
+
+    <select id="getSongCountForSinger" resultType="java.util.Map">
+        select sr.name as name,count(*) as value
+        from song s
+        join singer sr
+        on s.singer_id=sr.id
+        where s.delete_logic=1
+        group by s.singer_id
+        order by count(*) desc
+        limit 0,10
+    </select>
+
+    <select id="getPartSong" resultType="com.cumt.musicserver.domain.Song">
+        select s.id as id,
+               s.singer_id as singerId,
+               sr.name as singerName,
+               s.name as name,
+               s.pic as pic,
+               s.lyric as lyric,
+               s.url as url,
+               s.is_vip as isVip,
+        s.song_time as songTime
+        from song s
+        join singer sr
+        on s.singer_id=sr.id
+        where s.id in
+        <foreach item="item" collection="ids" separator="," open="(" close=")" index="">
+            #{item, jdbcType=INTEGER}
+        </foreach>
+        and s.delete_logic=true
+    </select>
+    <select id="getSongBySongListIdPage" resultType="com.cumt.musicserver.domain.Song">
+        select s.id as id,
+               s.singer_id as singerId,
+               sr.name as singerName,
+               s.name as name,
+               s.pic as pic,
+               s.lyric as lyric,
+               s.url as url,
+                s.is_vip as isVip,
+            s.song_time as songTime
+        from song s
+        join singer sr
+        on s.singer_id=sr.id
+        join list_song ls
+        on ls.song_id=s.id
+        where ls.song_list_id=#{songListId}
+        and ls.delete_logic=true
+        and s.delete_logic=true
+        limit #{currentPage},#{pageSize}
+    </select>
+
+    <select id="getConsumerLikeSong" resultType="com.cumt.musicserver.domain.Song">
+        select s.id as id,
+               s.singer_id as singerId,
+               sr.name as singerName,
+               s.name as name,
+               s.pic as pic,
+               s.lyric as lyric,
+               s.url as url,
+                s.is_vip as isVip,
+        s.song_time as songTime
+        from song s
+        join singer sr
+        on s.singer_id=sr.id
+        where s.id in
+        <foreach item="item" collection="idList" separator="," open="(" close=")" index="">
+            #{item, jdbcType=INTEGER}
+        </foreach>
+        and s.delete_logic=true
+    </select>
+
+    <select id="getSongsByLikeText" resultType="com.cumt.musicserver.domain.Song">
+            select s.id as id,
+                   s.singer_id as singerId,
+                   sr.name as singerName,
+                   s.name as name,
+                   s.pic as pic,
+                   s.lyric as lyric,
+                   s.url as url,
+                   s.is_vip as isVip,
+                    s.song_time as songTime
+            from song s
+            join singer sr
+            on s.singer_id=sr.id
+            where s.name like '${text}%'
+              and s.delete_logic=true
+            limit 0,10
+    </select>
+
+    <select id="getAllList" resultType="com.cumt.musicserver.domain.Song">
+        select s.id as id,
+               s.singer_id as singerId,
+               sr.name as singerName,
+               s.name as name,
+               s.pic as pic,
+               s.lyric as lyric,
+               s.url as url,
+               s.is_vip as isVip,
+            s.song_time as songTime
+        from song s
+        join singer sr
+        on s.singer_id=sr.id
+        where sr.id=#{singerId}
+          and s.delete_logic=true
+    </select>
+
+    <select id="getSongBySingId" resultType="com.cumt.musicserver.domain.Song">
+        select s.id as id,
+               s.singer_id as singerId,
+               sr.name as singerName,
+               s.name as name,
+               s.pic as pic,
+               s.lyric as lyric,
+               s.url as url,
+               s.is_vip as isVip,
+            s.song_time as songTime
+        from song s
+        join singer sr
+        on s.singer_id=sr.id
+        where sr.id=#{singerId}
+          and s.delete_logic=true
+        limit #{currentPage},#{pageSize}
+    </select>
+</mapper>

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cumt.musicserver.dao.SongListDao">
+<select id="songListGetCountByLetter" resultType="Integer">
+    SELECT count(*)
+    FROM song_list p, app_tcosler c
+    WHERE CONV( HEX( LEFT( CONVERT(title
+    USING gbk ) , 1 ) ) , 16, 10 )
+    BETWEEN c.cBegin
+    AND c.cEnd
+    AND fPY = #{letter}
+    or (left(title,1)=fpy and fpy= #{letter})
+</select>
+    <select id="songListGetByLetter" resultType="com.cumt.musicserver.domain.SongList">
+        SELECT p.*
+        FROM song_list p, app_tcosler c
+        WHERE CONV( HEX( LEFT( CONVERT(title
+        USING gbk ) , 1 ) ) , 16, 10 )
+        BETWEEN c.cBegin
+        AND c.cEnd
+        AND fPY = #{letter}
+        or (left(title,1)=fpy and fpy= #{letter})
+        ORDER BY CONVERT(title USING 'gbk')
+        limit #{currentPage},#{pageSize}
+    </select>
+    <select id="getSongListGetById" resultType="com.cumt.musicserver.domain.SongList">
+        select sl.id as id,
+               sl.title as title,
+               sl.pic as pic,
+               sl.introduction as introduction,
+               sl.style as style,
+               sl.created_time as createdTime,
+               sl.created_con_id as createdConId,
+               cs.username as createdName,
+               cs.avator as createdAvator
+        from song_list sl
+        join consumer cs
+        on sl.created_con_id = cs.id
+        where sl.id=#{id}
+    </select>
+    <select id="consumerAddSongGetSongList" resultType="com.cumt.musicserver.domain.SongList">
+        SELECT DISTINCT id,title FROM song_list
+        WHERE created_con_id= #{consumerId}
+          and id not in(select song_list_id from list_song where song_id=#{songId} AND delete_logic=1)
+    </select>
+</mapper>

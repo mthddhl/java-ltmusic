@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cumt.musicserver.dao.SongListCommentDao">
+    <select id="getCommentsBySongListId" resultType="com.cumt.musicserver.domain.SongListComment">
+    select sl.id,sl.content,sl.likes,cs.username as consumerId,
+           sl.created_time as createdTime,cs.avator as avator
+            from song_list_comment sl
+            join consumer cs
+            on sl.consumer_id=cs.id
+            where sl.song_list_id=#{songListId}
+            and sl.delete_logic=1
+            order by sl.likes desc
+            limit #{currentPage},#{pageSize}
+    </select>
+
+</mapper>
