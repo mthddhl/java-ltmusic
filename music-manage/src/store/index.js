@@ -5,10 +5,10 @@ Vue.use(Vuex)
 
 const store = new Vuex.Store({
   state: {
-    Host: 'http://120.25.161.31',
+    Host: 'http://xxxx',
     isPlay: false,
     url: '',
-    httpFileUrl: 'http://120.25.161.31:9000/music/'
+    httpFileUrl: 'http://xxxxx:xxx/music/'
   },
   getters: {
     isPlay: state => state.isPlay,

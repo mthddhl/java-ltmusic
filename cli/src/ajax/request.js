@@ -7,7 +7,7 @@ axios.defaults.withCredentials = true
 axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded;charset=utf-8'
 // axios.defaults.headers.post['Content-Type'] = 'multipart/form-data'
 
-axios.defaults.baseURL = 'http://120.25.161.31'
+axios.defaults.baseURL = 'http://xxxxx'
 axios.interceptors.response.use(
     response => {
         if (response.status === 200) {

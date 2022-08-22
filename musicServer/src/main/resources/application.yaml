@@ -10,7 +10,7 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3307/music?useSSL=false&serverTimezone=UTC&characterEncoding=UTF-8&allowPublicKeyRetrieval=true
     username: root
-    password: 147236
+    password: xxxx
     tomcat:
       initSQL: SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci
   servlet:
@@ -18,7 +18,7 @@ spring:
       max-file-size: 20MB
       max-request-size: 50MB
   redis:
-    host: 120.25.161.31
+    host: xxxxx
     port: 6379
     lettuce:
       pool:
@@ -28,12 +28,12 @@ spring:
         time-between-eviction-runs: 10s
       shutdown-timeout: 100
 #    connect-timeout: 50000ms
-    password: 159753
+    password: xxxxx
   rabbitmq:
-    host: 120.25.161.31
+    host: xxxx
     port: 5672
     username: root
-    password: 147236
+    password: xxxx
     virtual-host: /
     listener:
       simple:

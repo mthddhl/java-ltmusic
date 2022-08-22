@@ -43,7 +43,7 @@ public class MyPayConfig {
     public RedissonClient redissonClient(){
         Config config=new Config();
         config.useSingleServer()
-                .setAddress("redis://120.25.161.31:6379").setPassword("159753");
+                .setAddress("redis://xxxx").setPassword("xxx");
         return Redisson.create(config);
     }
 

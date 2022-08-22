@@ -42,8 +42,8 @@ public class WebMvConfig implements WebMvcConfigurer {
     @Bean
     public MinioClient minioClient(){
         return MinioClient.builder()
-                .endpoint("http://120.25.161.31:9000")
-                .credentials("root", "lzsLZS555555")
+                .endpoint("xxxx")
+                .credentials("xxx", "xxxx")
                 .build();
     }
     @Bean
@@ -74,7 +74,7 @@ public class WebMvConfig implements WebMvcConfigurer {
     public RedissonClient redissonClient(){
         Config config=new Config();
         config.useSingleServer()
-                .setAddress("redis://120.25.161.31:6379").setPassword("159753");
+                .setAddress("xxxxx").setPassword("xxxx");
         return Redisson.create(config);
     }
 

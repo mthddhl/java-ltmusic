@@ -6,9 +6,9 @@ export default createStore({
 
         },
         isVip:false,
-        httpUrl:'http://120.25.161.31',
+        httpUrl:'http://xxxx',
         // httpFileUrl:'http://120.25.161.31:9000/music/',
-        httpFileUrl:'http://120.25.161.31/music/',
+        httpFileUrl:'http://xxxx/music/',
         consumer:{
             id:null,
             roles:null,
