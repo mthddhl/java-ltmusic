@@ -1,5 +1,5 @@
 # music
-项目名：聆听音乐（除后台前端参考了部分开源项目，其余均独立从零完成）
+项目名：聆听音乐
 ●相关技术：springboot+mysql(mybatisPlus)+redis+nginx+springsecurity+RabbitMq+minio+Vue+elementui
 ●项目前台链接： http://120.25.161.31/ ，代码链接： https://github.com/mthddhl/music.git
 ●项目介绍：基于个人兴趣建立的一个音乐网站，集合歌单、歌手、歌曲、登录、点赞、评论等。此站分为前台与后台，
