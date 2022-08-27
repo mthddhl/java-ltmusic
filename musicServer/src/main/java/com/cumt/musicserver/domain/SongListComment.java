@@ -8,6 +8,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
@@ -34,4 +36,13 @@ public class SongListComment {
     private Boolean liked=false;
     @TableField(exist = false)
     private String avator;
+
+    @TableField(exist = false)
+    private Integer replyCount=0;
+
+    @TableField(exist = false)
+    private List<SlChComment> replyList=new ArrayList<>();
+
+    @TableField(exist = false)
+    private Integer currentPage=0;
 }

@@ -1,6 +1,5 @@
 package com.cumt.musicserver.dao;
 
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.cumt.musicserver.domain.SongListComment;
 import com.github.yulichang.base.MPJBaseMapper;
 

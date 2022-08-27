@@ -13,4 +13,6 @@ public interface ISongListCommentService extends MPJBaseService<SongListComment>
     Result consumerLikeComment(Integer commentId, Boolean liked);
 
     Result consumerDeleteComment(Integer commentId,Integer songListId);
+
+    Result getChildrenCommentBySongListId(Integer songListId,Integer currentPage);
 }

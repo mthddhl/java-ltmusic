@@ -53,17 +53,6 @@ public class WebMvConfig implements WebMvcConfigurer {
         return multipartResolver;
     }
 
-//    @Bean(value = "objectMapperNoTime")
-//    public ObjectMapper objectMapperNoTime(){
-//        //        objectMapper.registerModule(new JavaTimeModule());
-//        return new ObjectMapper();
-//    }
-//    @Bean(value = "objectMapper")
-//    public ObjectMapper objectMapper(){
-//        ObjectMapper objectMapper=new ObjectMapper();
-//        objectMapper.registerModule(new JavaTimeModule());
-//        return new ObjectMapper();
-//    }
 
     @Bean
     public MessageConverter messageConverter(){
@@ -74,7 +63,7 @@ public class WebMvConfig implements WebMvcConfigurer {
     public RedissonClient redissonClient(){
         Config config=new Config();
         config.useSingleServer()
-                .setAddress("xxxxx").setPassword("xxxx");
+                .setAddress("xxx").setPassword("xxx");
         return Redisson.create(config);
     }
 

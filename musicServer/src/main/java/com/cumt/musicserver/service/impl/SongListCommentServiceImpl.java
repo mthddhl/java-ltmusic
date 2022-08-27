@@ -1,13 +1,14 @@
 package com.cumt.musicserver.service.impl;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.ObjectUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.cumt.musicserver.dao.SlChCommentDao;
 import com.cumt.musicserver.dao.SongListCommentDao;
-import com.cumt.musicserver.domain.Comment;
-import com.cumt.musicserver.domain.Consumer;
-import com.cumt.musicserver.domain.SongListComment;
+import com.cumt.musicserver.domain.*;
 import com.cumt.musicserver.service.ISongListCommentService;
+import com.cumt.musicserver.service.SlChCommentService;
 import com.cumt.musicserver.util.Result;
 import com.cumt.musicserver.util.StaticString;
 import com.github.yulichang.base.MPJBaseServiceImpl;
@@ -20,7 +21,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+
+import static com.cumt.musicserver.service.impl.SlChCommentServiceImpl.COMMENT_REPLY_COUNT;
 
 @Service
 public class SongListCommentServiceImpl extends MPJBaseServiceImpl<SongListCommentDao, SongListComment> implements ISongListCommentService {
@@ -29,6 +33,12 @@ public class SongListCommentServiceImpl extends MPJBaseServiceImpl<SongListComme
 
     @Resource
     private StringRedisTemplate stringRedisTemplate;
+
+    @Resource
+    private SlChCommentDao slChCommentDao;
+
+    @Resource
+    private SlChCommentService slChCommentService;
 
     @Override
     public Result subComments(SongListComment s) {
@@ -65,7 +75,8 @@ public class SongListCommentServiceImpl extends MPJBaseServiceImpl<SongListComme
                         SongListComment::getCreatedTime,SongListComment::getConsumerId,SongListComment::getConsumerId)
                 .selectAs(Consumer::getUsername, SongListComment::getConsumerName)
                 .selectAs(Consumer::getAvator, SongListComment::getAvator)
-                .leftJoin(Consumer.class, Consumer::getId, SongListComment::getConsumerId);
+                .leftJoin(Consumer.class, Consumer::getId, SongListComment::getConsumerId)
+                .eq(SongListComment::getSongListId,songListId);
         List<SongListComment> list;
         if("hot".equals(type)){
             list=selectJoinListPage(new Page<>(currentPage, pageSize)
@@ -75,6 +86,18 @@ public class SongListCommentServiceImpl extends MPJBaseServiceImpl<SongListComme
             list=selectJoinListPage(new Page<>(currentPage, pageSize)
                     , SongListComment.class, songListCommentMPJLambdaWrapper
                             .orderByAsc(SongListComment::getCreatedTime)).getRecords();
+        }
+        List<String> listId=new ArrayList<>();
+        list.forEach(a->listId.add(a.getId().toString()));
+        if(ObjectUtils.isNotEmpty(list)) {
+            List<Double> score = stringRedisTemplate.opsForZSet().score(COMMENT_REPLY_COUNT, listId.toArray());
+            if (ObjectUtils.isNotEmpty(score)) {
+                for (int i = 0; i < score.size(); i++) {
+                    if (ObjectUtils.isNotEmpty(score.get(i))) {
+                        list.get(i).setReplyCount(score.get(i).intValue());
+                    }
+                }
+            }
         }
         if(!(o instanceof Consumer)){
             return Result.ok(list);
@@ -86,7 +109,6 @@ public class SongListCommentServiceImpl extends MPJBaseServiceImpl<SongListComme
                 each.setLiked(true);
             }
         });
-
         return Result.ok(list);
     }
 
@@ -123,6 +145,14 @@ public class SongListCommentServiceImpl extends MPJBaseServiceImpl<SongListComme
             return Result.ok("删除成功");
         }
         return Result.ok("删除失败");
+    }
+
+    @Override
+    public Result getChildrenCommentBySongListId(Integer songListId,Integer currentPage) {
+        currentPage=currentPage*5;
+        List<SlChComment> list=slChCommentDao.getChildrenCommentBySongListId(songListId,currentPage);
+        slChCommentService.setLikeCount(list);
+        return Result.ok(list);
     }
 
 }

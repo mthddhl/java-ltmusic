@@ -1,7 +1,9 @@
 package com.cumt.musicserver.controller;
 
+import com.cumt.musicserver.domain.SlChComment;
 import com.cumt.musicserver.domain.SongListComment;
 import com.cumt.musicserver.service.ISongListCommentService;
+import com.cumt.musicserver.service.SlChCommentService;
 import com.cumt.musicserver.util.Result;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -26,6 +28,10 @@ import java.util.ArrayList;
 public class songListCommentController {
     @Resource
     private ISongListCommentService songListCommentService;
+
+
+    @Resource
+    private SlChCommentService slChCommentService;
 
     @PostMapping("/subComments")
     @PreAuthorize("hasAnyAuthority('admin','consumer')")
@@ -54,4 +60,26 @@ public class songListCommentController {
     public Result consumerDeleteComment(Integer commentId,Integer songListId){
         return songListCommentService.consumerDeleteComment(commentId,songListId);
     }
+    @PostMapping("/replyComment")
+    @PreAuthorize("hasAnyAuthority('admin','consumer')")
+    public Result replyComment(SlChComment slChComment) {
+        return slChCommentService.replyComment(slChComment);
+    }
+
+    @GetMapping("/getChildrenCommentBySongListId")
+    public Result getChildrenCommentBySongListId(Integer songListId,Integer currentPage){
+        return songListCommentService.getChildrenCommentBySongListId(songListId,currentPage);
+    }
+
+    @GetMapping("/consumerChildrenLikeComment")
+    @PreAuthorize("hasAnyAuthority('admin','consumer')")
+    public Result consumerChildrenLikeComment(Integer commentId,Boolean liked){
+        return slChCommentService.consumerChildrenLikeComment(commentId,liked);
+    }
+    @GetMapping("/consumerDeleteReplyComment")
+    @PreAuthorize("hasAnyAuthority('admin','consumer')")
+    public Result consumerDeleteReplyComment(Integer replyId,Integer pid){
+        return slChCommentService.consumerDeleteReplyComment(replyId,pid);
+    }
+
 }
