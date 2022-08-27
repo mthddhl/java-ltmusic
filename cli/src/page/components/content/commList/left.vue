@@ -149,14 +149,14 @@
                   placeholder="评论。。。。。"
                   @blur="blurEvent"
         ></el-input>
-        <el-button style="float:left;margin-top:7px;margin-left: 90px;width: 50px" @click="isShowEmoji=!isShowEmoji">
+        <el-button style="float:left;margin-top:7px;margin-left: 90px;width: 50px" @click="isShowEmoji = isShowEmoji===-1? -2:-1">
             表情<el-icon><ArrowDown /></el-icon>
         </el-button>
         <div style="margin-top:13px;margin-left: 550px">
             <span style="color:#80111a">字数：{{comment.length}}</span>
         </div>
         <el-button type="primary" style="margin-top:-49px;margin-left: 640px" @click="submitComment">提交评论</el-button>
-        <vuemoji-picker class="email" @emojiClick="handleEmojiClick" v-show="isShowEmoji"
+        <vuemoji-picker class="email" @emojiClick="handleEmojiClick" v-show="isShowEmoji===-1"
         ></vuemoji-picker>
         <div>
             <div style="margin-left: 50px;margin-top: 10px">
@@ -165,8 +165,7 @@
             </div>
             <el-divider style="margin-top: 1px;margin-bottom: 15px; width:88%;margin-left: 50px;background-color: #51626e"/>
             <div>
-
-                <a-comment v-for="i in commentList" :key="i" :author="i.consumerId" :datetime="initTime(i.createdTime)" align="right" style="width: 86%;margin-left: 45px">
+                <a-comment v-for="i in commentList" :key="i" :author="i.consumerName" :datetime="initTime(i.createdTime)" align="right" style="width: 86%;margin-left: 45px">
                     <template #actions>
                         <span class="action" key="heart" @click="onLikeChange(i)">
                             <span v-if="i.liked">
@@ -177,11 +176,14 @@
                             </span>
                            {{ i.likes }}
                         </span>
+                        <span style="cursor: pointer"  @click="isReplyO(i);">
+                            <icon-message /> 回复({{i.replyCount}})
+                        </span>
                         <span class="action" key="reply" v-if="this.consumerId===i.consumerId || this.consumerId===songList.createdConId" @click="deleteComment(i.id)">
                             <icon-delete />delete
                         </span>
                         <span v-else>
-                            <icon-stop  />delete
+                            <icon-stop  />删除
                         </span>
                     </template>
                     <template #avatar>
@@ -197,8 +199,86 @@
                             {{i.content}}
                         </div>
                     </template>
-                    <el-divider style="margin-top: -15px;margin-bottom: 0px; width:110%;margin-left: -50px;background-color: rgba(81,98,110,0.09)"/>
+                    <div v-if="isReply===i.id">
+                        <a-comment
+                                v-for="temp in i.replyList" :key="temp"
+                                :author="temp.userName"
+                                :avatar="this.$store.state.httpFileUrl+temp.userAvator"
+                                :content="'@'+temp.originName+':'+temp.content"
+                                :datetime="this.initTime(temp.createTime)"
+                        >
+                            <template #actions>
+                                <span class="action" key="heart" @click="onLikeChildrenChange(temp)">
+                            <span v-if="temp.liked">
+                                 <IconHeartFill :style="{ color: '#f53f3f' }" />
+                             </span>
+                            <span v-else>
+                              <IconHeart />
+                            </span>
+                           {{ temp.likes }}
+                        </span>
+                          <span style="cursor: pointer" @click="isChildReply= isChildReply===temp.id? -1:temp.id; replyWindows= replyWindows===-1? i.id:-1">
+                            <icon-message /> 回复
+                        </span>
+                                <span class="action" key="reply"
+                                      v-if="this.consumerId===temp.consumerId || this.consumerId===songList.createdConId"
+                                      @click="deleteReplyComment(i,temp)">
+                            <icon-delete />delete
+                        </span>
+                                <span v-else>
+                            <icon-stop  />删除
+                        </span>
+                            </template>
+
+
+                            <div v-if="isChildReply===temp.id" style="margin-left:-100px">
+                                <el-avatar :size="50" :src="consumer.consumer.avator" style="margin-left: 10px" />
+                                <el-input v-model="this.replyChildrenComment" type="textarea" style="width:80%;margin-left:25px;"
+                                          :autosize="{ minRows: 2, maxRows: 4 }"
+                                          :placeholder="'回复'+temp.userName+':'"
+                                          @blur="blurEvent"
+                                ></el-input>
+                                <el-button style="float:left;margin-top:7px;margin-left: 90px;width: 50px" @click="isShowEmoji = isShowEmoji===temp.id? -2:temp.id">
+                                    表情<el-icon><ArrowDown /></el-icon>
+                                </el-button>
+                                <div style="margin-top:13px;margin-left: 550px">
+                                    <span style="color:#80111a">字数：{{replyChildrenComment.length}}</span>
+                                </div>
+                                <el-button type="primary" style="margin-top:-49px;margin-left: 640px" @click="submitReplyComment(i,this.replyChildrenComment,temp.userId)">提交评论</el-button>
+                                <vuemoji-picker class="email" @emojiClick="handleEmojiClick1" v-show="isShowEmoji===temp.id && isReply===i.id"
+                                ></vuemoji-picker>
+                            </div>
+
+
+                        </a-comment>
+                        <el-button v-if="isAddComment" @click="getChildrenComment(i,true)">加载更多</el-button>
+                        <br><br>
+                    </div>
+
+
+                    <div v-if="replyWindows===i.id" style="margin-left:-100px">
+                        <el-avatar :size="50" :src="consumer.consumer.avator" style="margin-left: 10px" />
+                        <el-input v-model="this.replyComment" type="textarea" style="width:80%;margin-left:25px;"
+                                  :autosize="{ minRows: 2, maxRows: 4 }"
+                                  placeholder="评论。。。。。"
+                                  @blur="blurEvent"
+                        ></el-input>
+                        <el-button style="float:left;margin-top:7px;margin-left: 90px;width: 50px" @click="isShowEmoji = isShowEmoji===i.id? -2:i.id">
+                            表情<el-icon><ArrowDown /></el-icon>
+                        </el-button>
+                        <div style="margin-top:13px;margin-left: 550px">
+                            <span style="color:#80111a">字数：{{replyComment.length}}</span>
+                        </div>
+                        <el-button type="primary" style="margin-top:-49px;margin-left: 640px" @click="submitReplyComment(i,this.replyComment,i.consumerId)">提交评论</el-button>
+                        <vuemoji-picker class="email" @emojiClick="handleEmojiClick" v-show="isShowEmoji===i.id && isReply===i.id"
+                        ></vuemoji-picker>
+                    </div>
+                    <el-divider style="margin-top: -15px; width:110%;margin-left: -50px;background-color: rgba(81,98,110,0.09)"/>
+
+
                 </a-comment>
+
+
             </div>
             <el-pagination layout="prev, pager, next"
                            :total="commentCount"
@@ -252,7 +332,11 @@
         getLikeSongList,
         fileIsExist,
         consumerAddSongToSongList,
-        consumerAddSongGetSongList, consumerDeleteComment
+        consumerAddSongGetSongList,
+        consumerDeleteComment,
+        replyComment,
+        getChildrenCommentBySongListId,
+        consumerChildrenLikeComment, consumerDeleteReplyComment
     } from '@/ajax/getAndPost'
     import axios from "axios";
     import fileDownload from "js-file-download";
@@ -261,6 +345,8 @@
         mixins:[mixin],
         data() {
             return {
+                replyWindows:-1,
+                isChildReply:-1,
                 isDelete:true,
                 isLike:"default",
                 isSongListPlay:false,
@@ -275,8 +361,9 @@
                 start:false,
                 songListId:-1,
                 songList:{},
-                isShowEmoji: false,
+                isShowEmoji:-2,
                 comment: '',
+                replyComment:'',
                 labelType: ['标签111'],
                 isPlay: {
                     status: -1,
@@ -315,13 +402,104 @@
                     'cursor':'pointer',
                     'color':'#ff0000'
                 },
-                type:"hot"
+                type:"hot",
+                isReply:-1,
+                replyChildrenComment:'',
+                isAddComment:true,
             }
         },
         components: {
             VuemojiPicker
         },
         methods: {
+            deleteReplyComment(i,temp){
+                let params=new URLSearchParams();
+                params.append("replyId",temp.id)
+                params.append("pid",i.id)
+                consumerDeleteReplyComment(params).then(res=>{
+                    if(res.success){
+                        ElMessage.success(res.data)
+                        i.replyList.splice(temp.$index,1)
+                        i.replyCount--;
+                    }else {
+                        ElMessage.error(res.errorMsg);
+                    }
+                })
+            },
+            onLikeChildrenChange(temp){
+                if(localStorage.getItem("token")===null || localStorage.getItem("token")===''){
+                    ElMessage.success("您还未登录，不能点赞")
+                    localStorage.setItem("token","");
+                    return;
+                }
+                let params=new URLSearchParams();
+                params.append("commentId",temp.id)
+                params.append("liked",temp.liked)
+                consumerChildrenLikeComment(params).then(res=>{
+                    if(res.success){
+                        if(temp.liked){
+                            temp.likes-=1;
+                        }else {
+                            temp.likes+=1;
+                        }
+                        temp.liked=!temp.liked
+                    }else {
+                        ElMessage.error(res.errorMsg)
+                    }
+                })
+            },
+            isReplyO(i){
+                i.currentPage=0;
+                i.replyList=[]
+                this.isReply= this.isReply===i.id? -1:i.id;
+                this.replyComment='';
+                this.getChildrenComment(i,false);
+                i.currentPage++;
+                this.replyWindows= this.replyWindows===i.id? -1:i.id
+            },
+            getChildrenComment(i,flag){
+                let params =new URLSearchParams();
+                params.append("songListId",i.id)
+                params.append("currentPage",i.currentPage)
+                getChildrenCommentBySongListId(params).then(res=>{
+                    if(res.success){
+                        res.data.forEach(a=>{
+                            i.replyList.push(a);
+                        })
+                        if(res.data.length<5 || res.data===[]){
+                            this.isAddComment=false;
+                            return
+                        }
+                        if(flag){
+                            i.currentPage+=1;
+                        }
+                    }
+                })
+            },
+            submitReplyComment(i,content,consumerId){
+                if(this.consumerId<1){
+                    ElMessage.error("未登录，无法回复")
+                    return
+                }
+                let params=new URLSearchParams();
+                params.append("songListId",this.songListId)
+                // params.append("content".this.replyComment)
+                params.append("content",content)
+                params.append("originId",consumerId)
+                params.append("pid",i.id);
+                replyComment(params).then(res=>{
+                    if(res.success){
+                        ElMessage.success("提交成功")
+                        this.isChildReply=-1;
+                        this.replyWindows=i.id;
+                        this.replyChildrenComment='';
+                        this.replyComment='';
+                        i.replyCount++;
+                    }else {
+                        ElMessage.error(res.errorMsg)
+                    }
+                })
+            },
             deleteComment(id){
                 console.log(id)
                 let params=new URLSearchParams();
@@ -407,6 +585,7 @@
                 this.addSongId=row.id;
                 if(this.consumerId<1){
                     ElMessage.error("未登录，无法收藏")
+                    return
                 }
                 let param=new URLSearchParams()
                 param.append("consumerId",this.consumerId)
@@ -498,7 +677,7 @@
                     console.log(time)
                     let date= new Date(time)
                     console.log(date)
-                    return date.getFullYear()+'-'+date.getMonth()+'-'+date.getDate();
+                    return date.getFullYear()+'-'+(date.getMonth()+1)+'-'+date.getDate();
                 }else {
                     time=Date.now()-time+2;
                     if(time>60*60*1000){
@@ -582,10 +761,21 @@
             },
             handleEmojiClick(detail) {
                 let index = this.blurIndex
-                let str = this.comment
-                this.comment = str.slice(0, index) + detail.unicode + str.slice(index);
+                if(this.isShowEmoji===-1){
+                    let str = this.comment
+                    this.comment = str.slice(0, index) + detail.unicode + str.slice(index);
+                    this.blurIndex+=2;
+                }else {
+                    let str = this.replyComment
+                    this.replyComment = str.slice(0, index) + detail.unicode + str.slice(index);
+                    this.blurIndex+=2;
+                }
+            },
+            handleEmojiClick1(detail){
+                let index = this.blurIndex
+                let str = this.replyChildrenComment
+                this.replyChildrenComment = str.slice(0, index) + detail.unicode + str.slice(index);
                 this.blurIndex+=2;
-
             },
             init(){
                if(localStorage.getItem("consumer")!==null && localStorage.getItem("consumer")!=='') {
