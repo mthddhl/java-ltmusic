@@ -8,9 +8,9 @@ spring:
     name: music
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3307/musicPay?useSSL=false&serverTimezone=UTC&characterEncoding=UTF-8&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://120.25.161.31:3307/musicPay?useSSL=false&serverTimezone=UTC&characterEncoding=UTF-8&allowPublicKeyRetrieval=true
     username: root
-    password: xxxx
+    password: xxx
     tomcat:
       initSQL: SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci
   servlet:
@@ -18,7 +18,7 @@ spring:
       max-file-size: 20MB
       max-request-size: 50MB
   redis:
-    host: xxx
+    host: 120.25.161.31
     port: 6379
     lettuce:
       pool:
@@ -27,12 +27,12 @@ spring:
         min-idle: 1
         time-between-eviction-runs: 10s
 #      shutdown-timeout: 1000
-    password: xxxx
+    password: xxx
   rabbitmq:
-    host: xxx
+    host: 120.25.161.31
     port: 5672
     username: root
-    password: xxxx
+    password: xxx
     virtual-host: /
     template:
       mandatory: true
