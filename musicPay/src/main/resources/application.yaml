@@ -34,6 +34,10 @@ spring:
     username: root
     password: xxxx
     virtual-host: /
+    template:
+      mandatory: true
+    publisher-confirm-type: correlated
+    publisher-returns: true
 #logging:
 #  level:
 #    com.cumt: debug
