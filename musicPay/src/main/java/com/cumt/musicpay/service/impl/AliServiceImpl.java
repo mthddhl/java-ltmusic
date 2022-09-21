@@ -20,6 +20,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
+import org.springframework.amqp.core.Message;
+import org.springframework.amqp.core.MessageBuilder;
+import org.springframework.amqp.rabbit.connection.CorrelationData;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.core.env.Environment;
 import org.springframework.core.io.ClassPathResource;
@@ -116,11 +119,25 @@ public class AliServiceImpl implements AliService {
                 map.put("consumerId",one.getUserId().toString());
                 map.put("productType", one.getTitle());
                 map.put("orderNo",orderNo);
+                CorrelationData c1=new CorrelationData();
+                ObjectMapper objectMapper=new ObjectMapper();
+                Map<String,String> map1=new HashMap<>();
+                map1.put("exchange","consumer");
+                map1.put("key","consumer.VIP");
+                map1.put("message",objectMapper.writeValueAsString(map));
+                byte[] bytes = objectMapper.writeValueAsBytes(map1);
+                Message m= MessageBuilder.withBody(bytes).build();
+                c1.setReturnedMessage(m);
                 rabbitTemplate.convertAndSend("consumer",
-                        "consumer.VIP", map);
+                        "consumer.VIP", map,c1
+                        );
+//                rabbitTemplate.convertAndSend("consumer",
+//                        "consumer.VIP", map);
                 iOrderService.updatePaySuccess(orderNo);
                 iPaymentInfoService.createdPaymentInfo(param);
 
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
             } finally {
                 lock.unlock();
             }

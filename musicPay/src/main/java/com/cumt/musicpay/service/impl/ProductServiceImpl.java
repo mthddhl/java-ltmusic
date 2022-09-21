@@ -5,6 +5,7 @@ import com.cumt.musicpay.dao.ProductDao;
 import com.cumt.musicpay.service.IProductService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.cumt.musicpay.util.Result;
+import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -71,13 +72,17 @@ public class ProductServiceImpl extends ServiceImpl<ProductDao, Product> impleme
     }
 
     public void getAndRemove(List<Product> list){
-        List<Long> removeList=new ArrayList<>();
-        for (Product p:list){
-            if(LocalDateTime.now().isAfter(p.getExpireTime())){
-                removeList.add(p.getId());
-                list.remove(p);
+        if(ObjectUtils.isNotEmpty(list)) {
+            List<Long> removeList = new ArrayList<>();
+            List<Product> removeProducts = new ArrayList<>();
+            for (Product p : list) {
+                if (LocalDateTime.now().isAfter(p.getExpireTime())) {
+                    removeList.add(p.getId());
+                    removeProducts.add(p);
+                }
             }
+            list.removeAll(removeProducts);
+            removeByIds(removeList);
         }
-        removeByIds(removeList);
     }
 }
